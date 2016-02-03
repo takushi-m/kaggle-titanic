@@ -16,7 +16,7 @@ def makeInput(data):
     x["class2"] = data.Pclass.map(lambda x:1 if x==2 else 0)
     x["class3"] = data.Pclass.map(lambda x:1 if x==3 else 0)
     x["male"] = data.Sex.map(lambda x:1 if x=="male" else 0)
-    x["female"] = data.Sex.map(lambda x:1 if x=="femal" else 0)
+    x["female"] = data.Sex.map(lambda x:1 if x=="female" else 0)
     x["fare+"] = data.Fare.map(lambda x:1 if x<20 else 0)
     x["fare-"] = data.Fare.map(lambda x:1 if x>=20 else 0)
 
