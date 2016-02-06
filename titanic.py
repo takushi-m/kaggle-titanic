@@ -1,3 +1,4 @@
+# score: 0.77512
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import PolynomialFeatures as poly
@@ -9,16 +10,23 @@ def makeInput(data):
     x = pd.DataFrame()
     x["sibsp"] = data.SibSp
     x["parch"] = data.Parch
-    x["age-20"] = data.Age.map(lambda x:1 if x<21 else 0)
-    x["age20-30"] = data.Age.map(lambda x:1 if x>20 and x<31 else 0)
+    x["smallfamiliy"] = (data.SibSp+data.Parch).map(lambda x:1 if x<3 else 0)
+    x["bigfamiliy"] = (data.SibSp+data.Parch).map(lambda x:1 if x>=3 else 0)
+    x["age"] = data.Age.map(lambda x: (x-29.7)/13.0)
+    x["age-10"] = data.Age.map(lambda x:1 if x<=10 else 0)
+    x["age10-15"] = data.Age.map(lambda x:1 if x>10 and x<=15 else 0)
+    x["age15-20"] = data.Age.map(lambda x:1 if x>15 and x<=20 else 0)
+    x["age20-25"] = data.Age.map(lambda x:1 if x>20 and x<=25 else 0)
+    x["age25-30"] = data.Age.map(lambda x:1 if x>25 and x<31 else 0)
     x["age30-"] = data.Age.map(lambda x:1 if x>30 else 0)
     x["class1"] = data.Pclass.map(lambda x:1 if x==1 else 0)
     x["class2"] = data.Pclass.map(lambda x:1 if x==2 else 0)
     x["class3"] = data.Pclass.map(lambda x:1 if x==3 else 0)
     x["male"] = data.Sex.map(lambda x:1 if x=="male" else 0)
     x["female"] = data.Sex.map(lambda x:1 if x=="female" else 0)
-    x["fare+"] = data.Fare.map(lambda x:1 if x<20 else 0)
-    x["fare-"] = data.Fare.map(lambda x:1 if x>=20 else 0)
+    x["fare"] = data.Fare.map(lambda x: (x-32.2)/49.7)
+    x["fare-"] = data.Fare.map(lambda x:1 if x<20 else 0)
+    x["fare+"] = data.Fare.map(lambda x:1 if x>=20 else 0)
 
     p = poly(2, interaction_only=False)
     return p.fit_transform(x)
@@ -29,7 +37,7 @@ if __name__ == "__main__":
     x = makeInput(data)
     y = data.Survived
 
-    model = lr(C=0.1)
+    model = lr(C=0.07)
     model.fit(x,y)
 
     test_data = pd.read_csv("./data/test.csv")
