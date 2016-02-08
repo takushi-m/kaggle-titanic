@@ -1,13 +1,20 @@
-# score: 0.77512
+# score: 0.78947
 import numpy as np
 import pandas as pd
+import math
 from sklearn.preprocessing import PolynomialFeatures as poly
 from sklearn.linear_model import LogisticRegression as lr
 
 def makeInput(data):
+    x = pd.DataFrame()
+    x["agena"] = data.Age.map(lambda x:1 if math.isnan(x) else 0)
+    x["farena"] = data.Fare.map(lambda x:1 if math.isnan(x) else 0)
+
     data.Age = data.Age.fillna(29.7)
     data.Fare = data.Fare.fillna(32.2)
-    x = pd.DataFrame()
+    data.Cabin = data.Cabin.fillna("NA")
+
+    x["cabinna"] = data.Cabin.map(lambda x:1 if x=="NA" else 0)
     x["sibsp"] = data.SibSp
     x["parch"] = data.Parch
     x["smallfamiliy"] = (data.SibSp+data.Parch).map(lambda x:1 if x<3 else 0)
@@ -28,6 +35,16 @@ def makeInput(data):
     x["fare-"] = data.Fare.map(lambda x:1 if x<20 else 0)
     x["fare+"] = data.Fare.map(lambda x:1 if x>=20 else 0)
 
+    x["mrs"] = data.Name.map(lambda x:1 if x.lower().find("mrs")>=0 else 0)
+    x["mr"] = data.Name.map(lambda x:1 if x.lower().find("mr")>=0 else 0)
+    x["miss"] = data.Name.map(lambda x:1 if x.lower().find("miss")>=0 else 0)
+    x["master"] = data.Name.map(lambda x:1 if x.lower().find("master")>=0 else 0)
+
+    x["embark_C"] = data.Embarked.map(lambda x:1 if x=="C" else 0)
+    x["embark_Q"] = data.Embarked.map(lambda x:1 if x=="Q" else 0)
+    x["embark_S"] = data.Embarked.map(lambda x:1 if x=="S" else 0)
+
+    #return x
     p = poly(2, interaction_only=False)
     return p.fit_transform(x)
 
@@ -37,7 +54,7 @@ if __name__ == "__main__":
     x = makeInput(data)
     y = data.Survived
 
-    model = lr(C=0.07)
+    model = lr(C=0.2)
     model.fit(x,y)
 
     test_data = pd.read_csv("./data/test.csv")
